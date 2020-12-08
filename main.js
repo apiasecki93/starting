@@ -1,4 +1,4 @@
-let solveMaze = require('./komentarzeResolver.js');
+let solveMaze = require('./Resolver.js');
 //console.log(mazeTest);
 
 const prompt = require('prompt-sync')({sigint: true});
