@@ -1,348 +1,326 @@
+let solveMaze = require('./komentarzeResolver.js');
+//console.log(mazeTest);
+
 const prompt = require('prompt-sync')({sigint: true});
 
 // Global variable of map items
 const hat = '^';
 const hole = 'O';
 const fieldCharacter = '░';
-const fieldCharacter2 = '░';
 const pathCharacter = '*';
-const winIcon = '@';
+let mazeHat;
 
 // new Class
 class Field {
-    constructor(name) {
+    constructor(name)  {
         this.name = name;
+        this.game = true;
+        this.posX = 0;
+        this.posY = 0;
+        this.creatField = [];
+        this.resultMap;
+        this.level;
+        this.sizeMap = 0;
     }
-    board2D() {
-        let creatField = [];
-        //make field
-        let resultMap;
-        let level;
-        let sizeMap;
-        let askSize = () => {
-           console.log("Welcome in game")
-           console.log("Select size of map to generate")
-           let userInput;
-           
-            let doIt = () => {
-                console.log("1 for small, 2 medium, 3 big")
-                userInput = prompt();
-                
-                if (userInput === '1' || '2' || '3') {
-                    if (userInput === '1') {
-                        userInput = 1;
-                        console.log("You selected small map")
-                        return userInput;
-                    } else if ( userInput === '2') {
-                        userInput = 2;
-                        console.log("You selected  medium map")
-                        return userInput
-                    } else if ( userInput === '3') {
-                        userInput = 3;
-                        console.log("You selected big map")
-                        return userInput
-                    }
-                    else{
-                    console.log("wrong input, select again: ");
-                    userInput = false
-                    return userInput;
-                    }
-                }
-            }   
-            do { 
-                resultMap = doIt();
-                
-            } while (!resultMap)
-
-            return resultMap;
+    askSize() {
+        console.log("Welcome in game")
+        console.log("Select size of map to generate")
+    }       
+    doIt() {
+        console.log("1 for small, 2 medium, 3 big")
+        const userInput = prompt();
+        if (userInput === '1' || '2' || '3') {
+            if (userInput === '1') {
+                this.sizeMap = 10;
+                console.clear()
+                console.log("You selected small map")
+            } else if ( userInput === '2') {
+                this.sizeMap = 20;
+                console.clear()
+                console.log("You selected  medium map");
+            } else if ( userInput === '3') {
+                this.sizeMap = 30;
+                console.clear()
+                console.log("You selected big map");
+            }
+            else{
+                console.log("wrong input, select again: ");
+                this.doIt();
+            }
         }
+        //console.log(this.sizeMap);
+    }
          
        
-        let askLevel = () => {
-            console.log("Select level of game")
-            let userInput2;
-            let doIt2 = () => {
-                console.log("1 for level easy, 2 for level medium, 3 for level hard")
-                userInput2 = prompt();
+    askLevel(){
+        let userInput2;
+        
+        console.log("Select level of game")
+        console.log("1 for level easy, 2 for level medium, 3 for level hard")
+        
+        userInput2 = prompt();
             
-                if (userInput2 === '1' || '2' || '3') {
-                    if (userInput2 === '1') {
-                        userInput2 = 1;
-                        console.log("You selected easy")
-                        return userInput2;
-                    } else if ( userInput2 === '2') {
-                        userInput2 = 2;
-                        console.log("You selected medium")
-                        return userInput2
-                    } else if ( userInput2 === '3') {
-                        userInput2 = 3;
-                        console.log("You selected difficult")
-                        return userInput2
-                    }
-                    else{
-                    console.log("wrong input, select again: ");
-                    userInput2 = false
-                    return userInput2;
-                    }
+            if (userInput2 === '1' || '2' || '3') {
+                if (userInput2 === '1') {
+                    this.level = 1;
+                    console.clear()
+                    console.log("You selected easy");
                 }
-            }   
-            do { 
-                level = doIt2();
-            
-            } while (!level)
-
-            return level;
-        }
-
-        
-        let matrixSize = askSize();
-        let matrixLevel = askLevel();
-        
-        //console.log(matrixLevel +' '+matrixSize );
-
-        let matrix = (matrixSize, matrixLevel) =>{
-            let mS = matrixSize;
-            let mL = matrixLevel;
-            return mS+'.'+mL;
-        }
-        const resultMatrix = matrix(matrixSize, matrixLevel);
-        console.log(matrix(matrixSize, matrixLevel)); 
-        
-
-        let generateMap = (resultMap) => {
-            switch (resultMap) {
-                case 1:
-                    return 10;
-                    break;
-                case 2:
-                    return 20;
-                    break;
-                case 3:
-                    return 30;
-                    break;    
+                else if ( userInput2 === '2') {
+                    this.level = 2;
+                    console.clear()
+                    console.log("You selected medium");
+                }
+                else if ( userInput2 === '3') {
+                    this.level = 3;
+                    console.clear()
+                    console.log("You selected difficult")
+                }
+                else{
+                console.log("wrong input, select again: ");
+                this.askLevel();
+                }
             }
+        }   
+
+        
+        
+
+ 
+    
+    genretateMap() {
+    for (var i = 0; i < this.sizeMap; i++) {
+        const array = [];
+        for (var j = 0; j < this.sizeMap; j++) {
+            array.push(fieldCharacter);
         }
+        this.creatField.push(array);
+        }
+    }; 
 
-        sizeMap = generateMap(resultMap)
 
-        for (var i = 0; i < sizeMap; i++) {
-            const array = [];
-            for (var j = 0; j < sizeMap; j++) {
-                array.push(fieldCharacter);
-            }
-            creatField.push(array);
-        }; 
-         
-        const length = creatField.length -1;
+    makeHoles(){ 
+        const resultMatrix = this.sizeMap + this.level;
         let percent;
+        const size = this.sizeMap;
 
-
-
-
-        switch(resultMatrix){
-            case '1.1':
-                percent = Math.floor((length * length)/5); 
-                console.log(percent);
-                for(let i = 0; i < percent; i++){
-                    const x = randomHole(length);
-                    const y = randomHole(length);
-                    creatField[x][y] = hole;
-                };
-            break;
-            case '1.2':
-                percent = Math.floor((length * length)/4);
-                
-                for(let i = 0; i < percent; i++){
-
-                    const x = randomHole(length);
-                    const y = randomHole(length);
-                    creatField[x][y] = hole;
-                };
-            break;
-            case '1.3':
-                percent = Math.round((length * length)/3);
-                
-                for(let i = 0; i < percent; i++){
-                    const x = randomHole(length);
-                    const y = randomHole(length);
-                    creatField[x][y] = hole;
-                };
-                 
-            break;
-            case '2.1':
-                percent = Math.round((length * length)/5); 
-                
-                for(let i = 0; i < percent; i++){
-                    const x = randomHole(length);
-                    const y = randomHole(length);
-                    creatField[x][y] = hole;
-                };
-            break;
-            case '2.2':
-                percent = Math.round((length * length)/4);
-                for(let i = 0; i < percent; i++){
-                    const x = randomHole(length);
-                    const y = randomHole(length);
-                    creatField[x][y] = hole;
-                };
-            break;
-            case '2.3':
-                percent = Math.round((length * length)/3);
-                
-                for(let i = 0; i < percent; i++){
-                    const x = randomHole(length);
-                    const y = randomHole(length);
-                    creatField[x][y] = hole;
-                };
-            break;
-            case '3.1':
-                percent = Math.round((length * length)/5); 
-                
-                for(let i = 0; i < percent; i++){
-                    const x = randomHole(length);
-                    const y = randomHole(length);
-                    creatField[x][y] = hole;
-                };
-            break;
-            case '3.2':
-                percent = Math.round((length * length)/4);
-                
-                for(let i = 0; i < percent; i++){
-                    const x = randomHole(length);
-                    const y = randomHole(length);
-                    creatField[x][y] = hole;
-                };
-            break;
-            case '3.3':
-                percent = Math.round((length * length)/3);
-                
-                for(let i = 0; i < percent; i++){
-                    const x = randomHole(length);
-                    const y = randomHole(length);
-                    creatField[x][y] = hole;
-                };
-            break;
-        }
-        
-        
-        function randomHole(size) {
-            let r1 = Math.ceil(Math.random() * size);
-            if(r1 === 0) return randomHole()
+        function randomHole(size = 0) {
+            const r1 = Math.ceil(Math.random() * (size-1));
+            if(r1 == 0) return randomHole()
             else return r1;
         }
 
+        switch(resultMatrix){
+            case 11:
+                percent = Math.floor((this.sizeMap * this.sizeMap)/5); 
+                //console.log(percent);
+                for(let i = 0; i < percent; i++){
+                    const x = randomHole(this.sizeMap);
+                    const y = randomHole(this.sizeMap);
+                    //console.log(x+' '+y);
+                    this.creatField[x][y] = hole;
+                };
+            break;
+            case 12:
+                percent = Math.floor((this.sizeMap * this.sizeMap)/4);
+                    
+                for(let i = 0; i < percent; i++){
+
+                    const x = randomHole(this.sizeMap);
+                    const y = randomHole(this.sizeMap);
+                    this.creatField[x][y] = hole;
+                };
+            break;
+            case 13:
+                percent = Math.round((this.sizeMap * this.sizeMap)/3);
+                    
+                for(let i = 0; i < percent; i++){
+                    const x = randomHole(this.sizeMap);
+                    const y = randomHole(this.sizeMap);
+                    this.creatField[x][y] = hole;
+                };
+                    
+            break;
+            case 21:
+                percent = Math.round((this.sizeMap * this.sizeMap)/5); 
+                    
+                for(let i = 0; i < percent; i++){
+                    const x = randomHole(this.sizeMap);
+                    const y = randomHole(this.sizeMap);
+                    this.creatField[x][y] = hole;
+                };
+            break;
+            case 22:
+                percent = Math.round((this.sizeMap * this.sizeMap)/4);
+                for(let i = 0; i < percent; i++){
+                    const x = randomHole(this.sizeMap);
+                    const y = randomHole(this.sizeMap);
+                    this.creatField[x][y] = hole;
+                };
+            break;
+            case 23:
+                percent = Math.round((this.sizeMap * this.sizeMap)/3);
+                    
+                for(let i = 0; i < percent; i++){
+                    const x = randomHole(this.sizeMap);
+                    const y = randomHole(this.sizeMap);
+                    this.creatField[x][y] = hole;
+                };
+            break;
+            case 31:
+                percent = Math.round((this.sizeMap * this.sizeMap)/5); 
+                    
+                for(let i = 0; i < percent; i++){
+                    const x = randomHole(this.sizeMap);
+                    const y = randomHole(this.sizeMap);
+                    this.creatField[x][y] = hole;
+                };
+            break;
+            case 32:
+                percent = Math.round((this.sizeMap * this.sizeMap)/4);
+                    
+                for(let i = 0; i < percent; i++){
+                    const x = randomHole(this.sizeMap);
+                    const y = randomHole(this.sizeMap);
+                    this.creatField[x][y] = hole;
+                };
+            break;
+            case 33:
+                percent = Math.round((this.sizeMap * this.sizeMap)/3);
+                    
+                for(let i = 0; i < percent; i++){
+                    const x = randomHole(this.sizeMap);
+                    const y = randomHole(this.sizeMap);
+                    this.creatField[x][y] = hole;
+                };
+            break;
+        }
+    }
+        
+    
+
       
         
-        let cH = () => {
-            const fieldLenght = 9;
-            function randomHat() {
-                let r1 = Math.round(Math.random() * fieldLenght);
-                if(r1 === 0) return randomHat()
-                else return r1;
-            }
+    generateHat(){
+        const size = this.sizeMap;
+
+        function randomHat() {
+            let r1 = Math.floor(Math.random() * (size-1));
+            if(r1 === 0) return randomHat()
+            else return r1;
+        }
+        let y = randomHat()
+        let x = randomHat()
+        
+        this.creatField[y][x] = hat;
+        this.creatField[0][0] = pathCharacter;
+    }   
+
+    startGame(){  
+        let validMap = false;
+        
+        this.askSize();
+        this.doIt();
+        this.askLevel();
+
+        while(!validMap)
+        {
+            this.genretateMap();
+            this.makeHoles();
+            this.generateHat();
 
             
-            creatField[randomHat()][randomHat()]= hat;
-            creatField[0][0] = pathCharacter;
 
-        }   
+            const map = solveMaze(this.creatField);
+            
 
-        cH();
+            if(map) validMap = true;
+        }
         
 
 
-        let game = true;
-        
-        let x = 0;
-        let y = 0;
-
-        while(game) {
+        while(this.game) {
             console.clear();
-            
-            if (game === true) {
-                let userMoved;
-                let userMove = () =>{
 
-
-
-                for(let i = 0; i < 10; i++) {
-                        console.log(creatField[i].join(''));
-                    
+            let userMoved;
+            let userMove = () =>{
+                for(let i = 0; i < this.sizeMap; i++) {
+                        console.log(this.creatField[i].join(''));
+                        
                 }
+
                 console.log("make a move WSAD")
                 let userKey= prompt();
                 if (userKey === 'a' || userKey === 's' || userKey === 'd' || userKey === 'w'){
-                    return userMoved = userKey;
+                    userMoved = userKey;
                 } else {
                     console.log("wrong move, do it again")
-                    return userMoved
+                    userMove();
                 } 
-                }   
-                userMoved = userMove();
-                switch(userMoved) {
-                    case 'w':
-                        if (y != 0) {
-                            if(creatField[y-1][x] === hole) game = false;
-                            if(creatField[y-1][x] === hat) {
-                                creatField[y][x] = fieldCharacter; 
-                               let abc = creatField[y-1][x] === winIcon;
-                                console.log('Win');
-                                if (abc) {
-                                game = false;
-                                }
-                            }
-                            creatField[y-1][x] = pathCharacter;
-                            creatField[y][x] = fieldCharacter;                            
-                            y -= 1;
+            }   
+            userMove();
+            switch(userMoved) {
+                case 'w':
+                    if (this.posY != 0) {
+                        if(this.creatField[this.posY-1][this.posX] === hole) this.game = false;
+                        if(this.creatField[this.posY-1][this.posX] === hat) {
+                            console.log('Win');
+                            this.game = false;
                         }
-                    break;
-                    case 'd':
-                        if (x < creatField.length-1){
-                            if(creatField[y][x+1] === hole) game = false;
-                            if(creatField[y][x+1] === hat) {
-                                game = false;
-                                console.log("Win")
-                            }
-                            creatField[y][x+1] = pathCharacter;
-                            creatField[y][x] = fieldCharacter;                       
-                            x += 1;                           
-                        }   
-                    break;
-                    case 's':
-                        if (y < creatField.length-1) {
-                            if(creatField[y+1][x] === hole) game = false;
-                            if(creatField[y+1][x] === hat) {
-                                game = false;
-                                console.log("Win")
-                            }
-                            creatField[y+1][x] = pathCharacter;
-                            creatField[y][x] = fieldCharacter2;
-                            y += 1;
+                        this.creatField[this.posY-1][this.posX] = pathCharacter;
+                        this.creatField[this.posY][this.posX] = fieldCharacter;                            
+                        this.posY -= 1;
+                    }
+                break;
+                case 'd':
+                    if (this.posX < this.sizeMap){
+                        if(this.creatField[this.posY][this.posX+1] === hole) this.game = false;
+                        if(this.creatField[this.posY][this.posX+1] === hat) {
+                            console.log("Win");
+                            this.game = false;
+                        }
+                        this.creatField[this.posY][this.posX+1] = pathCharacter;
+                        this.creatField[this.posY][this.posX] = fieldCharacter;                       
+                        this.posX += 1;                           
+                    }   
+                break;
+                case 's':
+                    if (this.posY < this.sizeMap) {
+                        if(this.creatField[this.posY+1][this.posX] === hole) this.game = false;
+                        if(this.creatField[this.posY+1][this.posX] === hat) {
+                            this.game = false;
+                            console.log("Win");
+                        }
+                        this.creatField[this.posY+1][this.posX] = pathCharacter;
+                        this.creatField[this.posY][this.posX] = fieldCharacter;
+                        this.posY += 1;
                             
+                    }
+                break;
+                case 'a':
+                    if (this.posX != 0) {
+                        if(this.creatField[this.posY][this.posX-1] === hole) this.game = false;
+                        if(this.creatField[this.posY][this.posX-1] === hat) {
+                            this.game = false;
+                            console.log("Win");
                         }
-                    break;
-                    case 'a':
-                        if (x != 0) {
-                            if(creatField[y][x-1] === hole) game = false;
-                            if(creatField[y][x-1] === hat) {
-                                game = false;
-                                console.log("Win")
-                            }
-                            creatField[y][x-1] = pathCharacter;
-                            creatField[y][x] = fieldCharacter;
-                            x -= 1
+                        this.creatField[this.posY][this.posX-1] = pathCharacter;
+                        this.creatField[this.posY][this.posX] = fieldCharacter;
+                        this.posX -= 1
                             
-                        }
-                    break;
-                }
-                
-            } else {
+                    }
                 break;
             }
-        }
+            
+    }
     }
 }
+//}
 
 const newF = new Field;
 
-newF.board2D();
+newF.startGame();
+
+
+const map = newF.genretateMap();
+
